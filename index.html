@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Teknik Elektro</title>
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome (Icons) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- LINK KE FILE CSS EKSTERNAL -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden relative">
+
+    <!-- Mobile Overlay (Background Darkener) -->
+    <div id="mobile-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden opacity-0 invisible"></div>
+
+    <!-- Mobile Fixed Header (Baris Menu Tetap di Atas) -->
+    <header class="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-30 flex items-center justify-between px-4 shadow-sm">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-bolt text-yellow-400 text-xl"></i>
+            <h1 class="text-lg font-bold tracking-wide">Elektro Tools | Adit</h1>
+        </div>
+        <!-- Tombol Hamburger Menu -->
+        <button onclick="toggleMenu()" class="p-2 text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-slate-900 text-white flex flex-col z-50 transform -translate-x-full md:relative md:translate-x-0 md:flex-shrink-0 shadow-2xl md:shadow-none h-full transition-transform duration-300 ease-in-out">
+        <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-bolt text-yellow-400 text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-wide">Elektro Tools</h1>
+            </div>
+            <!-- Close Button (Mobile Only) -->
+            <button onclick="toggleMenu()" class="md:hidden text-slate-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="p-4 space-y-2 overflow-y-auto flex-1">
+            <button onclick="switchTab('ohm')" id="btn-ohm" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-slate-800 transition-colors bg-blue-600 text-white">
+                <i class="fas fa-calculator w-6"></i> Hukum Ohm
+            </button>
+            <button onclick="switchTab('power')" id="btn-power" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-slate-800 transition-colors text-slate-300">
+                <i class="fas fa-lightbulb w-6"></i> Daya Listrik (DC)
+            </button>
+            <button onclick="switchTab('resistor')" id="btn-resistor" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-slate-800 transition-colors text-slate-300">
+                <i class="fas fa-palette w-6"></i> Kode Warna Resistor
+            </button>
+            <button onclick="switchTab('divider')" id="btn-divider" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-slate-800 transition-colors text-slate-300">
+                <i class="fas fa-project-diagram w-6"></i> Pembagi Tegangan
+            </button>
+            <button onclick="switchTab('current')" id="btn-current" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-slate-800 transition-colors text-slate-300">
+                <i class="fas fa-stream w-6"></i> Pembagi Arus
+            </button>
+            <button onclick="switchTab('series_parallel')" id="btn-series_parallel" class="nav-btn w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-slate-800 transition-colors text-slate-300">
+                <i class="fas fa-arrows-left-right w-6"></i> Seri / Paralel
+            </button>
+        </nav>
+        
+        <div class="p-4 text-xs text-slate-500 text-center border-t border-slate-800">
+            v1.3 Mobile Ready
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto w-full relative pt-20 md:pt-8">
+        
+        <!-- 1. OHM'S LAW SECTION -->
+        <div id="tab-ohm" class="calc-section block animate-fade-in">
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-blue-50">
+                    <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                        <i class="fas fa-calculator text-blue-600"></i> Hukum Ohm (V = I × R)
+                    </h2>
+                    <p class="text-blue-600 mt-1 text-sm">Hitung Tegangan (V), Arus (I), atau Hambatan (R).</p>
+                </div>
+                
+                <div class="p-6 md:p-8 space-y-6">
+                    <!-- Selector -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Apa yang ingin dihitung?</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="setOhmMode('v')" id="ohm-mode-v" class="ohm-mode-btn py-2 px-4 rounded-lg border-2 border-blue-500 bg-blue-50 text-blue-700 font-bold transition-all text-sm md:text-base">Tegangan (V)</button>
+                            <button onclick="setOhmMode('i')" id="ohm-mode-i" class="ohm-mode-btn py-2 px-4 rounded-lg border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-all text-sm md:text-base">Arus (I)</button>
+                            <button onclick="setOhmMode('r')" id="ohm-mode-r" class="ohm-mode-btn py-2 px-4 rounded-lg border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-all text-sm md:text-base">Hambatan (R)</button>
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div id="ohm-input-1-container">
+                            <label id="ohm-label-1" class="block text-sm font-medium text-slate-700 mb-1">Arus (Ampere)</label>
+                            <div class="relative">
+                                <input type="number" id="ohm-input-1" placeholder="0" class="w-full pl-3 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" oninput="calculateOhm()">
+                                <span id="ohm-unit-1" class="absolute right-3 top-3 text-slate-400 font-medium">A</span>
+                            </div>
+                        </div>
+                        <div id="ohm-input-2-container">
+                            <label id="ohm-label-2" class="block text-sm font-medium text-slate-700 mb-1">Hambatan (Ohm)</label>
+                            <div class="relative">
+                                <input type="number" id="ohm-input-2" placeholder="0" class="w-full pl-3 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" oninput="calculateOhm()">
+                                <span id="ohm-unit-2" class="absolute right-3 top-3 text-slate-400 font-medium">Ω</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="bg-slate-900 rounded-xl p-6 text-center text-white mt-4">
+                        <p class="text-slate-400 text-sm uppercase tracking-wider mb-1">Hasil Perhitungan</p>
+                        <div class="text-4xl md:text-5xl font-bold flex justify-center items-end gap-2">
+                            <span id="ohm-result-val">0</span>
+                            <span id="ohm-result-unit" class="text-2xl text-blue-400 mb-1">V</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. POWER CALCULATION -->
+        <div id="tab-power" class="calc-section hidden animate-fade-in">
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-amber-50">
+                    <h2 class="text-2xl font-bold text-amber-900 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-amber-600"></i> Daya Listrik DC (P = V × I)
+                    </h2>
+                    <p class="text-amber-700 mt-1 text-sm">Hitung Daya (Watt), Tegangan, atau Arus.</p>
+                </div>
+                
+                <div class="p-6 md:p-8 space-y-6">
+                     <!-- Selector -->
+                     <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Target Perhitungan</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setPowerMode('p')" id="p-mode-p" class="p-mode-btn flex-1 py-2 px-3 rounded-lg border-2 border-amber-500 bg-amber-50 text-amber-700 font-bold text-sm">Daya (P)</button>
+                            <button onclick="setPowerMode('v')" id="p-mode-v" class="p-mode-btn flex-1 py-2 px-3 rounded-lg border-2 border-slate-200 text-slate-600 hover:bg-slate-50 text-sm">Tegangan (V)</button>
+                            <button onclick="setPowerMode('i')" id="p-mode-i" class="p-mode-btn flex-1 py-2 px-3 rounded-lg border-2 border-slate-200 text-slate-600 hover:bg-slate-50 text-sm">Arus (I)</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div id="p-input-1-container">
+                            <label id="p-label-1" class="block text-sm font-medium text-slate-700 mb-1">Tegangan (Volt)</label>
+                            <input type="number" id="p-input-1" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" oninput="calculatePower()">
+                        </div>
+                        <div id="p-input-2-container">
+                            <label id="p-label-2" class="block text-sm font-medium text-slate-700 mb-1">Arus (Ampere)</label>
+                            <input type="number" id="p-input-2" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" oninput="calculatePower()">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 rounded-xl p-6 text-center text-white">
+                        <p class="text-slate-400 text-sm uppercase tracking-wider mb-1">Hasil</p>
+                        <div class="text-4xl font-bold">
+                            <span id="p-result-val">0</span> <span id="p-result-unit" class="text-amber-400">W</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RESISTOR COLOR CODE -->
+        <div id="tab-resistor" class="calc-section hidden animate-fade-in">
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-purple-50">
+                    <h2 class="text-2xl font-bold text-purple-900 flex items-center gap-2">
+                        <i class="fas fa-palette text-purple-600"></i> Kode Warna Resistor
+                    </h2>
+                    <p class="text-purple-700 mt-1 text-sm">Kalkulator untuk resistor 4 gelang dan 5 gelang.</p>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <!-- Band Selector Switch -->
+                    <div class="flex justify-center mb-8">
+                        <div class="bg-slate-100 p-1 rounded-lg inline-flex">
+                            <button onclick="setResistorBands(4)" id="btn-band-4" class="px-6 py-2 rounded-md bg-white shadow text-slate-800 font-medium transition-all">4 Gelang</button>
+                            <button onclick="setResistorBands(5)" id="btn-band-5" class="px-6 py-2 rounded-md text-slate-500 font-medium hover:text-slate-800 transition-all">5 Gelang</button>
+                        </div>
+                    </div>
+
+                    <!-- Resistor Visual -->
+                    <div class="relative h-32 md:h-40 flex items-center justify-center mb-8 select-none">
+                        <!-- Left Wire -->
+                        <div class="h-2 w-16 bg-gray-400"></div>
+                        <!-- Resistor Body -->
+                        <div class="resistor-body h-16 md:h-24 w-64 md:w-80 rounded-full bg-amber-100 relative flex items-center justify-evenly px-6 md:px-10 overflow-hidden border border-gray-300 shadow-inner">
+                            <div id="band-1" class="w-4 md:w-6 h-full bg-amber-900 shadow-sm z-10"></div>
+                            <div id="band-2" class="w-4 md:w-6 h-full bg-black shadow-sm z-10"></div>
+                            <div id="band-3" class="w-4 md:w-6 h-full bg-red-600 shadow-sm z-10 hidden"></div> <!-- 3rd digit for 5 band -->
+                            <div id="band-mul" class="w-4 md:w-6 h-full bg-red-600 shadow-sm z-10"></div>
+                            <div class="flex-grow"></div> <!-- Spacer -->
+                            <div id="band-tol" class="w-4 md:w-6 h-full bg-yellow-500 shadow-sm z-10"></div>
+                        </div>
+                        <!-- Right Wire -->
+                        <div class="h-2 w-16 bg-gray-400"></div>
+                    </div>
+
+                    <!-- Result Display -->
+                    <div class="text-center mb-8">
+                        <div class="text-4xl font-bold text-slate-800 mb-1" id="resistor-value">1 kΩ</div>
+                        <div class="text-lg text-slate-500 font-medium" id="resistor-tolerance">± 5%</div>
+                    </div>
+
+                    <!-- Dropdowns Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Gelang 1</label>
+                            <select id="select-band-1" onchange="updateResistor()" class="w-full p-2 border border-slate-300 rounded focus:ring-purple-500 focus:border-purple-500"></select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Gelang 2</label>
+                            <select id="select-band-2" onchange="updateResistor()" class="w-full p-2 border border-slate-300 rounded focus:ring-purple-500 focus:border-purple-500"></select>
+                        </div>
+                        <div class="col-span-1 hidden" id="select-band-3-container">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Gelang 3</label>
+                            <select id="select-band-3" onchange="updateResistor()" class="w-full p-2 border border-slate-300 rounded focus:ring-purple-500 focus:border-purple-500"></select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Pengali</label>
+                            <select id="select-band-mul" onchange="updateResistor()" class="w-full p-2 border border-slate-300 rounded focus:ring-purple-500 focus:border-purple-500"></select>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Toleransi</label>
+                            <select id="select-band-tol" onchange="updateResistor()" class="w-full p-2 border border-slate-300 rounded focus:ring-purple-500 focus:border-purple-500"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. VOLTAGE DIVIDER -->
+        <div id="tab-divider" class="calc-section hidden animate-fade-in">
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-emerald-50">
+                    <h2 class="text-2xl font-bold text-emerald-900 flex items-center gap-2">
+                        <i class="fas fa-project-diagram text-emerald-600"></i> Pembagi Tegangan
+                    </h2>
+                    <p class="text-emerald-700 mt-1 text-sm">Hitung tegangan keluaran (Vout) dari dua resistor seri.</p>
+                </div>
+                
+                <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+                    <!-- Diagram (SVG) -->
+                    <div class="flex justify-center md:w-1/3 items-center"> 
+                        <svg width="150" height="250" viewBox="0 0 150 250" class="stroke-slate-800" stroke-width="2" fill="none">
+                            <circle cx="75" cy="20" r="4" fill="white"/>
+                            <text x="90" y="25" class="fill-slate-600 text-sm font-sans stroke-none">Vin</text>
+                            
+                            <line x1="75" y1="24" x2="75" y2="60" />
+                            
+                            <!-- R1 -->
+                            <rect x="65" y="60" width="20" height="40" fill="white" class="stroke-emerald-600" />
+                            <text x="35" y="85" class="fill-emerald-600 text-sm font-bold font-sans stroke-none">R1</text>
+                            
+                            <line x1="75" y1="100" x2="75" y2="140" />
+                            <line x1="75" y1="120" x2="110" y2="120" />
+                            <circle cx="114" cy="120" r="4" fill="white"/>
+                            <text x="120" y="125" class="fill-blue-600 text-sm font-bold font-sans stroke-none">Vout</text>
+
+                            <!-- R2 -->
+                            <rect x="65" y="140" width="20" height="40" fill="white" class="stroke-emerald-600" />
+                            <text x="35" y="165" class="fill-emerald-600 text-sm font-bold font-sans stroke-none">R2</text>
+                            
+                            <line x1="75" y1="180" x2="75" y2="220" />
+                            
+                            <!-- Ground -->
+                            <line x1="60" y1="220" x2="90" y2="220" />
+                            <line x1="65" y1="225" x2="85" y2="225" />
+                            <line x1="70" y1="230" x2="80" y2="230" />
+                        </svg>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="flex-1 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Tegangan Input (Vin)</label>
+                            <input type="number" id="div-vin" placeholder="Ex: 12" class="w-full mt-1 p-3 border border-slate-300 rounded-lg outline-none focus:border-emerald-500" oninput="calcDivider()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Resistor 1 (R1)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="div-r1" placeholder="Ex: 1000" class="w-full mt-1 p-3 border border-slate-300 rounded-lg outline-none focus:border-emerald-500" oninput="calcDivider()">
+                                <select class="mt-1 p-3 bg-slate-50 border border-slate-300 rounded-lg text-sm outline-none" id="div-r1-unit" onchange="calcDivider()">
+                                    <option value="1">Ω</option>
+                                    <option value="1000">kΩ</option>
+                                    <option value="1000000">MΩ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Resistor 2 (R2)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="div-r2" placeholder="Ex: 2000" class="w-full mt-1 p-3 border border-slate-300 rounded-lg outline-none focus:border-emerald-500" oninput="calcDivider()">
+                                <select class="mt-1 p-3 bg-slate-50 border border-slate-300 rounded-lg text-sm outline-none" id="div-r2-unit" onchange="calcDivider()">
+                                    <option value="1">Ω</option>
+                                    <option value="1000">kΩ</option>
+                                    <option value="1000000">MΩ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-lg mt-4">
+                            <span class="text-emerald-800 text-sm font-semibold">Tegangan Output (Vout):</span>
+                            <div class="text-3xl font-bold text-emerald-600 mt-1">
+                                <span id="div-vout">0.00</span> V
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. CURRENT DIVIDER (NEW FEATURE) -->
+        <div id="tab-current" class="calc-section hidden animate-fade-in">
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-cyan-50">
+                    <h2 class="text-2xl font-bold text-cyan-900 flex items-center gap-2">
+                        <i class="fas fa-stream text-cyan-600"></i> Pembagi Arus
+                    </h2>
+                    <p class="text-cyan-700 mt-1 text-sm">Hitung pembagian arus pada rangkaian paralel dua resistor.</p>
+                </div>
+                
+                <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+                    <!-- Diagram (SVG) -->
+                    <div class="flex justify-center md:w-1/3 items-center"> 
+                        <svg width="200" height="200" viewBox="0 0 200 200" class="stroke-slate-800" stroke-width="2" fill="none">
+                            <!-- Top Wire -->
+                            <line x1="100" y1="20" x2="100" y2="50" />
+                            <text x="105" y="35" class="fill-cyan-600 text-xs font-bold font-sans stroke-none">Itotal</text>
+                            <line x1="50" y1="50" x2="150" y2="50" />
+                            
+                            <!-- Left Branch (R1) -->
+                            <line x1="50" y1="50" x2="50" y2="80" />
+                            <rect x="40" y="80" width="20" height="40" fill="white" class="stroke-cyan-600" />
+                            <text x="15" y="105" class="fill-cyan-700 text-sm font-bold font-sans stroke-none">R1</text>
+                            <line x1="50" y1="120" x2="50" y2="150" />
+                            <text x="55" y="140" class="fill-slate-500 text-xs font-sans stroke-none">I1</text>
+
+                            <!-- Right Branch (R2) -->
+                            <line x1="150" y1="50" x2="150" y2="80" />
+                            <rect x="140" y="80" width="20" height="40" fill="white" class="stroke-cyan-600" />
+                            <text x="165" y="105" class="fill-cyan-700 text-sm font-bold font-sans stroke-none">R2</text>
+                            <line x1="150" y1="120" x2="150" y2="150" />
+                            <text x="155" y="140" class="fill-slate-500 text-xs font-sans stroke-none">I2</text>
+
+                            <!-- Bottom Join -->
+                            <line x1="50" y1="150" x2="150" y2="150" />
+                            <line x1="100" y1="150" x2="100" y2="180" />
+                        </svg>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="flex-1 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Arus Total (In)</label>
+                            <div class="relative">
+                                <input type="number" id="curr-in" placeholder="Ex: 5" class="w-full mt-1 p-3 border border-slate-300 rounded-lg outline-none focus:border-cyan-500 pr-10" oninput="calcCurrent()">
+                                <span class="absolute right-3 top-4 text-slate-400 text-sm font-medium">A</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Resistor 1 (R1)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="curr-r1" placeholder="Ex: 100" class="w-full mt-1 p-3 border border-slate-300 rounded-lg outline-none focus:border-cyan-500" oninput="calcCurrent()">
+                                <select class="mt-1 p-3 bg-slate-50 border border-slate-300 rounded-lg text-sm outline-none" id="curr-r1-unit" onchange="calcCurrent()">
+                                    <option value="1">Ω</option>
+                                    <option value="1000">kΩ</option>
+                                    <option value="1000000">MΩ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Resistor 2 (R2)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="curr-r2" placeholder="Ex: 200" class="w-full mt-1 p-3 border border-slate-300 rounded-lg outline-none focus:border-cyan-500" oninput="calcCurrent()">
+                                <select class="mt-1 p-3 bg-slate-50 border border-slate-300 rounded-lg text-sm outline-none" id="curr-r2-unit" onchange="calcCurrent()">
+                                    <option value="1">Ω</option>
+                                    <option value="1000">kΩ</option>
+                                    <option value="1000000">MΩ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div class="bg-cyan-50 border border-cyan-100 p-4 rounded-lg">
+                                <span class="text-cyan-800 text-xs font-semibold uppercase">Arus pada R1 (I1)</span>
+                                <div class="text-2xl font-bold text-cyan-700 mt-1">
+                                    <span id="curr-i1">0.00</span> A
+                                </div>
+                            </div>
+                            <div class="bg-cyan-50 border border-cyan-100 p-4 rounded-lg">
+                                <span class="text-cyan-800 text-xs font-semibold uppercase">Arus pada R2 (I2)</span>
+                                <div class="text-2xl font-bold text-cyan-700 mt-1">
+                                    <span id="curr-i2">0.00</span> A
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. SERIES / PARALLEL -->
+        <div id="tab-series_parallel" class="calc-section hidden animate-fade-in">
+             <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 bg-indigo-50">
+                    <h2 class="text-2xl font-bold text-indigo-900 flex items-center gap-2">
+                        <i class="fas fa-arrows-left-right text-indigo-600"></i> Seri & Paralel
+                    </h2>
+                    <p class="text-indigo-700 mt-1 text-sm">Hitung resistor total untuk rangkaian Seri atau Paralel.</p>
+                </div>
+                
+                <div class="p-6 md:p-8">
+                     <!-- Mode Toggle -->
+                     <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-3 rounded border border-slate-200 hover:border-indigo-300 w-full sm:w-auto">
+                            <input type="radio" name="sp-mode" value="series" checked onchange="calcSP()" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                            <span class="font-medium text-slate-700">Seri (R1 + R2 + ...)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-3 rounded border border-slate-200 hover:border-indigo-300 w-full sm:w-auto">
+                            <input type="radio" name="sp-mode" value="parallel" onchange="calcSP()" class="w-5 h-5 text-indigo-600 focus:ring-indigo-500">
+                            <span class="font-medium text-slate-700">Paralel (1/R_total = 1/R1 + ...)</span>
+                        </label>
+                    </div>
+
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Nilai Resistor (pisahkan dengan koma)</label>
+                    <textarea id="sp-input" rows="3" class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm" placeholder="Contoh: 100, 200, 470" oninput="calcSP()"></textarea>
+                    <p class="text-xs text-slate-500 mt-1 mb-6">*Masukan nilai dalam Ohm, dipisahkan koma.</p>
+
+                    <div class="bg-indigo-900 text-white p-6 rounded-xl flex items-center justify-between">
+                        <span class="text-indigo-200 font-medium">Total Hambatan:</span>
+                        <div class="text-3xl font-bold">
+                            <span id="sp-result">0</span> Ω
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- LINK KE FILE JS EKSTERNAL -->
+    <script src="script.js"></script>
+</body>
+</html>

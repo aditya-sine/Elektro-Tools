@@ -1,0 +1,32 @@
+/* Custom Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Sidebar Transition */
+#sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Overlay Transition */
+#mobile-overlay {
+    transition: opacity 0.3s ease-in-out, visibility 0.3s;
+}
+
+/* Resistor Bands Styles (Perbaikan: bg-color -> background-color) */
+.band-black { background-color: #000000; }
+.band-brown { background-color: #8B4513; }
+.band-red { background-color: #FF0000; }
+.band-orange { background-color: #FFA500; }
+.band-yellow { background-color: #FFFF00; }
+.band-green { background-color: #008000; }
+.band-blue { background-color: #0000FF; }
+.band-violet { background-color: #EE82EE; }
+.band-grey { background-color: #808080; }
+.band-white { background-color: #FFFFFF; }
+.band-gold { background-color: #FFD700; }
+.band-silver { background-color: #C0C0C0; }
